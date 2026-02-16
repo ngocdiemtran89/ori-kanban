@@ -1993,13 +1993,9 @@
             <div class="admin-filter-bar">
                 <button class="admin-filter-btn active" onclick="filterAdminHistory('all')" data-filter="all">Tất
                     cả</button>
-                <button class="admin-filter-btn" onclick="filterAdminHistory('create')" data-filter="create">➕
-                    Tạo</button>
                 <button class="admin-filter-btn" onclick="filterAdminHistory('edit')" data-filter="edit">✏️ Sửa</button>
                 <button class="admin-filter-btn" onclick="filterAdminHistory('delete')" data-filter="delete">🗑️
                     Xóa</button>
-                <button class="admin-filter-btn" onclick="filterAdminHistory('status')" data-filter="status">🔄
-                    Chuyển</button>
             </div>
             <div class="admin-history-list" id="adminHistoryList">
                 <!-- JS renders here -->
@@ -2403,11 +2399,6 @@ Ví dụ:
                     createdAt: new Date().toISOString()
                 };
                 tasks.push(task);
-                logTaskHistory('create', title, {
-                    assignees: assignees.join(', '),
-                    priority: task.priority,
-                    status: task.status
-                });
             }
 
             saveTasks();
@@ -2579,15 +2570,6 @@ Ví dụ:
                 const oldStatus = task.status;
                 const wasDone = task.status === 'done';
                 task.status = newStatus;
-
-                // Log status change to admin history
-                if (oldStatus !== newStatus) {
-                    const statusNames = { todo: 'Cần làm', doing: 'Đang làm', done: 'Đã xong' };
-                    logTaskHistory('status', task.title, {
-                        from: statusNames[oldStatus] || oldStatus,
-                        to: statusNames[newStatus] || newStatus
-                    });
-                }
 
                 // Track completion timestamp for reward system
                 if (newStatus === 'done' && !wasDone) {
@@ -3249,17 +3231,13 @@ Ví dụ:
             }
 
             const actionLabels = {
-                create: 'Tạo mới',
-                edit: 'Chỉnh sửa',
-                delete: 'Xóa',
-                status: 'Chuyển cột'
+                edit: 'Đã sửa',
+                delete: 'Đã xóa'
             };
 
             const actionEmojis = {
-                create: '➕',
                 edit: '✏️',
-                delete: '🗑️',
-                status: '🔄'
+                delete: '🗑️'
             };
 
             listEl.innerHTML = filtered.map(entry => {
