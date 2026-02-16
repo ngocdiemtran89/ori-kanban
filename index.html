@@ -1228,6 +1228,178 @@
             box-shadow: 0 6px 24px rgba(26, 115, 232, 0.5);
         }
 
+        /* ========== ADMIN PANEL ========== */
+        .admin-footer-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.5);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .admin-footer-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .footer {
+            position: relative;
+        }
+
+        .admin-error {
+            color: #e53935;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 6px;
+            min-height: 18px;
+        }
+
+        .admin-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .admin-history-header h2 {
+            margin: 0;
+        }
+
+        .admin-history-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        .admin-count {
+            background: var(--primary-bg);
+            color: var(--primary);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .admin-filter-bar {
+            display: flex;
+            gap: 6px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .admin-filter-btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-600);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .admin-filter-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .admin-filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .admin-history-list {
+            max-height: 55vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .admin-log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--gray-50);
+            border-radius: 10px;
+            border: 1px solid var(--gray-100);
+            font-size: 12px;
+        }
+
+        .admin-log-time {
+            color: var(--gray-400);
+            font-size: 11px;
+            white-space: nowrap;
+            min-width: 90px;
+            padding-top: 2px;
+        }
+
+        .admin-log-body {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .admin-log-action {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-right: 6px;
+        }
+
+        .admin-log-action.create {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .admin-log-action.edit {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .admin-log-action.delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .admin-log-action.status {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .admin-log-detail {
+            color: var(--gray-500);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .admin-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-400);
+        }
+
+        .admin-empty-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
         /* ========== REWARD PANEL ========== */
         .reward-section {
             max-width: 1400px;
@@ -1778,6 +1950,7 @@
 
     <footer class="footer">
         Made with 💙 by <a href="#">ORI TOEIC Workspace</a> &mdash; © 2026
+        <button class="admin-footer-btn" onclick="openAdminLogin()">🔐 Quản trị</button>
     </footer>
 
     <!-- ========== WELCOME POPUP ========== -->
@@ -1788,6 +1961,52 @@
             <p class="welcome-message" id="welcomeMessage">Chúc bạn một ngày làm việc vui vẻ và hiệu quả! 😊</p>
             <div class="welcome-sparkles">✨ 🍀 ✨</div>
             <button class="welcome-close-btn" onclick="closeWelcome()">🚀 Bắt đầu làm việc thôi!</button>
+        </div>
+    </div>
+
+    <!-- ========== ADMIN LOGIN MODAL ========== -->
+    <div class="modal-overlay" id="adminLoginModal">
+        <div class="modal" style="width:380px; max-width:90vw;">
+            <h2>🔐 Đăng nhập Quản trị</h2>
+            <div class="form-group">
+                <label for="adminPassword">Mật khẩu</label>
+                <input type="password" id="adminPassword" placeholder="Nhập mật khẩu quản trị..." autocomplete="off">
+                <div class="admin-error" id="adminError"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeAdminLogin()">Hủy</button>
+                <button class="btn btn-primary" onclick="submitAdminLogin()">🔓 Đăng nhập</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ADMIN HISTORY MODAL ========== -->
+    <div class="modal-overlay" id="adminHistoryModal">
+        <div class="modal" style="width:700px; max-width:95vw;">
+            <div class="admin-history-header">
+                <h2>📊 Lịch sử thao tác</h2>
+                <div class="admin-history-info">
+                    <span id="adminHistoryMonth"></span>
+                    <span class="admin-count" id="adminHistoryCount">0 mục</span>
+                </div>
+            </div>
+            <div class="admin-filter-bar">
+                <button class="admin-filter-btn active" onclick="filterAdminHistory('all')" data-filter="all">Tất
+                    cả</button>
+                <button class="admin-filter-btn" onclick="filterAdminHistory('create')" data-filter="create">➕
+                    Tạo</button>
+                <button class="admin-filter-btn" onclick="filterAdminHistory('edit')" data-filter="edit">✏️ Sửa</button>
+                <button class="admin-filter-btn" onclick="filterAdminHistory('delete')" data-filter="delete">🗑️
+                    Xóa</button>
+                <button class="admin-filter-btn" onclick="filterAdminHistory('status')" data-filter="status">🔄
+                    Chuyển</button>
+            </div>
+            <div class="admin-history-list" id="adminHistoryList">
+                <!-- JS renders here -->
+            </div>
+            <div class="modal-actions" style="margin-top:16px;">
+                <button class="btn btn-secondary" onclick="closeAdminHistory()"> Đóng</button>
+            </div>
         </div>
     </div>
 
@@ -2152,12 +2371,22 @@ Ví dụ:
                 // EDIT mode
                 const task = tasks.find(t => t.id === taskId);
                 if (task) {
+                    // Build change details for history
+                    const changes = [];
+                    if (task.title !== title) changes.push(`Tiêu đề: "${task.title}" → "${title}"`);
+                    if (task.priority !== document.getElementById('taskPriority').value) changes.push(`Ưu tiên: ${task.priority} → ${document.getElementById('taskPriority').value}`);
+                    const oldAssignees = (task.assignees || (task.assignee ? [task.assignee] : [])).join(', ');
+                    const newAssignees = assignees.join(', ');
+                    if (oldAssignees !== newAssignees) changes.push(`Giao cho: ${oldAssignees || 'trống'} → ${newAssignees || 'trống'}`);
+
                     task.title = title;
                     task.description = document.getElementById('taskDesc').value.trim();
                     task.priority = document.getElementById('taskPriority').value;
                     task.assignees = assignees;
                     task.assignee = assignees[0] || ''; // backward compat
                     task.deadline = document.getElementById('taskDeadline').value;
+
+                    logTaskHistory('edit', title, { changes: changes.join(' | ') });
                     showNotification('✅ Đã cập nhật công việc!');
                 }
             } else {
@@ -2174,6 +2403,11 @@ Ví dụ:
                     createdAt: new Date().toISOString()
                 };
                 tasks.push(task);
+                logTaskHistory('create', title, {
+                    assignees: assignees.join(', '),
+                    priority: task.priority,
+                    status: task.status
+                });
             }
 
             saveTasks();
@@ -2188,8 +2422,16 @@ Ví dụ:
         function deleteTask(id) {
             // Archive completion data before deleting to preserve reward points
             const task = tasks.find(t => t.id === id);
-            if (task && task.status === 'done' && task.completedAt) {
-                archiveCompletion(task);
+            if (task) {
+                // Log delete to admin history
+                logTaskHistory('delete', task.title, {
+                    assignees: (task.assignees || (task.assignee ? [task.assignee] : [])).join(', '),
+                    priority: task.priority,
+                    status: task.status
+                });
+                if (task.status === 'done' && task.completedAt) {
+                    archiveCompletion(task);
+                }
             }
             tasks = tasks.filter(t => t.id !== id);
             saveTasks();
@@ -2334,8 +2576,19 @@ Ví dụ:
 
             const task = tasks.find(t => t.id === draggedTaskId);
             if (task) {
+                const oldStatus = task.status;
                 const wasDone = task.status === 'done';
                 task.status = newStatus;
+
+                // Log status change to admin history
+                if (oldStatus !== newStatus) {
+                    const statusNames = { todo: 'Cần làm', doing: 'Đang làm', done: 'Đã xong' };
+                    logTaskHistory('status', task.title, {
+                        from: statusNames[oldStatus] || oldStatus,
+                        to: statusNames[newStatus] || newStatus
+                    });
+                }
+
                 // Track completion timestamp for reward system
                 if (newStatus === 'done' && !wasDone) {
                     task.completedAt = new Date().toISOString();
@@ -2885,6 +3138,163 @@ Ví dụ:
             if (parsedImportTasks.length > 0) renderImportPreview();
         });
 
+        // ==================== ADMIN PANEL ====================
+        const ADMIN_PASSWORD = 'ori2026';
+
+        function logTaskHistory(action, taskTitle, details = {}) {
+            // Monthly reset: purge old entries
+            purgeOldHistory();
+
+            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            history.unshift({
+                action,
+                taskTitle,
+                details,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('ori_kanban_task_history', JSON.stringify(history));
+        }
+
+        function purgeOldHistory() {
+            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            if (history.length === 0) return;
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            // Keep only entries from current month
+            const filtered = history.filter(entry => {
+                const d = new Date(entry.timestamp);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+
+            if (filtered.length !== history.length) {
+                localStorage.setItem('ori_kanban_task_history', JSON.stringify(filtered));
+            }
+        }
+
+        function openAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('active');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').textContent = '';
+            setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').classList.remove('active');
+        }
+
+        function submitAdminLogin() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === ADMIN_PASSWORD) {
+                closeAdminLogin();
+                openAdminHistory();
+            } else {
+                document.getElementById('adminError').textContent = '❌ Sai mật khẩu! Vui lòng thử lại.';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // Enter key to submit admin password
+        document.getElementById('adminPassword').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') submitAdminLogin();
+        });
+
+        function openAdminHistory() {
+            purgeOldHistory();
+            document.getElementById('adminHistoryModal').classList.add('active');
+
+            // Show current month
+            const now = new Date();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            document.getElementById('adminHistoryMonth').textContent =
+                `📅 ${monthNames[now.getMonth()]}/${now.getFullYear()}`;
+
+            renderAdminHistory('all');
+        }
+
+        function closeAdminHistory() {
+            document.getElementById('adminHistoryModal').classList.remove('active');
+        }
+
+        let currentAdminFilter = 'all';
+
+        function filterAdminHistory(filter) {
+            currentAdminFilter = filter;
+            document.querySelectorAll('.admin-filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderAdminHistory(filter);
+        }
+
+        function renderAdminHistory(filter) {
+            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            const filtered = filter === 'all' ? history : history.filter(h => h.action === filter);
+
+            document.getElementById('adminHistoryCount').textContent = `${filtered.length} mục`;
+
+            const listEl = document.getElementById('adminHistoryList');
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="admin-empty">
+                        <div class="admin-empty-icon">📋</div>
+                        <p>Chưa có lịch sử thao tác trong tháng này.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const actionLabels = {
+                create: 'Tạo mới',
+                edit: 'Chỉnh sửa',
+                delete: 'Xóa',
+                status: 'Chuyển cột'
+            };
+
+            const actionEmojis = {
+                create: '➕',
+                edit: '✏️',
+                delete: '🗑️',
+                status: '🔄'
+            };
+
+            listEl.innerHTML = filtered.map(entry => {
+                const d = new Date(entry.timestamp);
+                const time = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+                let detailHtml = '';
+                if (entry.details) {
+                    if (entry.details.changes) {
+                        detailHtml = `<div class="admin-log-detail">📝 ${escapeHtml(entry.details.changes)}</div>`;
+                    } else {
+                        const parts = [];
+                        if (entry.details.assignees) parts.push(`👥 ${entry.details.assignees}`);
+                        if (entry.details.priority) parts.push(`🔸 ${entry.details.priority}`);
+                        if (entry.details.status) parts.push(`📌 ${entry.details.status}`);
+                        if (entry.details.from && entry.details.to) parts.push(`${entry.details.from} → ${entry.details.to}`);
+                        if (parts.length > 0) {
+                            detailHtml = `<div class="admin-log-detail">${parts.join(' &nbsp;|&nbsp; ')}</div>`;
+                        }
+                    }
+                }
+
+                return `
+                    <div class="admin-log-item">
+                        <div class="admin-log-time">${time}</div>
+                        <div class="admin-log-body">
+                            <span class="admin-log-action ${entry.action}">${actionLabels[entry.action] || entry.action}</span>
+                            <strong>${escapeHtml(entry.taskTitle)}</strong>
+                            ${detailHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // ==================== WELCOME POPUP ====================
         function showWelcome() {
             // Show once per session
@@ -2947,6 +3357,8 @@ Ví dụ:
                 closeTaskModal();
                 closeEmployeeModal();
                 closeImportModal();
+                closeAdminLogin();
+                closeAdminHistory();
             }
             if (e.key === 'Enter' && document.getElementById('taskModal').classList.contains('active')) {
                 if (e.target.tagName !== 'TEXTAREA') {
@@ -2970,6 +3382,12 @@ Ví dụ:
         });
         document.getElementById('rewardHistoryModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeRewardHistory();
+        });
+        document.getElementById('adminLoginModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeAdminLogin();
+        });
+        document.getElementById('adminHistoryModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeAdminHistory();
         });
 
         // ==================== START ====================
