@@ -1800,6 +1800,10 @@
             animation: fireGlow 1.5s ease infinite;
         }
     </style>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 
 <body>
@@ -2139,6 +2143,22 @@ Ví dụ:
     </div>
 
     <script>
+        // ==================== FIREBASE CONFIG ====================
+        // YÊU CẦU: THAY THẾ ĐOẠN MÃ DƯỚI ĐÂY BẰNG FIREBASE CONFIG CỦA BẠN
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app", // Thay đổi region nếu cần
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         // ==================== DATA ====================
         const AVATAR_COLORS = [
             '#1a73e8', '#0d47a1', '#1557b0', '#4a9af5',
@@ -2167,20 +2187,52 @@ Ví dụ:
 
         const DEFAULT_EMPLOYEES = ['Ms Diễm', 'Ms Loan', 'Ms Thảo'];
 
-        let tasks = JSON.parse(localStorage.getItem('ori_kanban_tasks') || '[]');
-        let employees = JSON.parse(localStorage.getItem('ori_kanban_employees') || 'null') || [...DEFAULT_EMPLOYEES];
+        let tasks = [];
+        let employees = [];
         let currentSloganIndex = 0;
         let draggedTaskId = null;
 
         // ==================== INIT ====================
-        function init() {
-            renderEmployees();
-            renderBoard();
-            updateStats();
-            updateAssigneeDropdown();
+                function init() {
+            // Lắng nghe dữ liệu nhân viên từ Firebase
+            db.ref('kanban/employees').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    employees = data;
+                } else {
+                    employees = [...DEFAULT_EMPLOYEES];
+                    saveEmployees(); // Lần đầu lưu danh sách mặc định lên mảng
+                }
+                renderEmployees();
+                updateAssigneeDropdown();
+            });
+
+            // Lắng nghe dữ liệu task từ Firebase
+            db.ref('kanban/tasks').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Chuyển object về mảng
+                    tasks = Object.values(data);
+                } else {
+                    tasks = [];
+                }
+                renderBoard();
+                updateStats();
+            });
+
+            // Lắng nghe lịch sử điểm thưởng từ Firebase
+            db.ref('kanban/rewards').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    window.rewardHistory = data;
+                } else {
+                    window.rewardHistory = [];
+                }
+                updateRewardPanel();
+            });
+
             startClock();
             startSloganRotation();
-            updateRewardPanel();
             showWelcome();
         }
 
@@ -2274,7 +2326,7 @@ Ví dụ:
         }
 
         function saveEmployees() {
-            localStorage.setItem('ori_kanban_employees', JSON.stringify(employees));
+            db.ref('kanban/employees').set(employees);
         }
 
         // ==================== TASKS ====================
@@ -2433,21 +2485,26 @@ Ví dụ:
 
         // Archive completed task data so reward points survive deletion
         function archiveCompletion(task) {
-            const archive = JSON.parse(localStorage.getItem('ori_kanban_completion_archive') || '[]');
-            const assigneeList = task.assignees || (task.assignee ? [task.assignee] : []);
-            assigneeList.forEach(emp => {
-                archive.push({
-                    taskId: task.id,
-                    employee: emp,
-                    completedAt: task.completedAt,
-                    title: task.title
+            db.ref('kanban/archived_completions').once('value').then(snap => {
+                const archive = snap.val() || [];
+                const assigneeList = task.assignees || (task.assignee ? [task.assignee] : []);
+                assigneeList.forEach(emp => {
+                    archive.push({
+                        taskId: task.id,
+                        employee: emp,
+                        completedAt: task.completedAt,
+                        title: task.title
+                    });
                 });
+                db.ref('kanban/archived_completions').set(archive);
             });
-            localStorage.setItem('ori_kanban_completion_archive', JSON.stringify(archive));
         }
 
         function saveTasks() {
-            localStorage.setItem('ori_kanban_tasks', JSON.stringify(tasks));
+            // Chuyển mảng tasks thành object để lưu dễ dàng trên Firebase theo ID
+            const tasksObj = {};
+            tasks.forEach(t => { tasksObj[t.id] = t; });
+            db.ref('kanban/tasks').set(tasksObj);
         }
 
         // ==================== RENDER BOARD ====================
@@ -2990,7 +3047,8 @@ Ví dụ:
         }
 
         function saveRewardHistory(history) {
-            localStorage.setItem('ori_kanban_rewards', JSON.stringify(history));
+            // window.rewardHistory = history; // Cập nhật local trước tự động qua listener
+            db.ref('kanban/rewards').set(history);
         }
 
         function checkAndSaveRewards() {
@@ -3127,7 +3185,7 @@ Ví dụ:
             // Monthly reset: purge old entries
             purgeOldHistory();
 
-            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            const history = window.taskHistory || [];
             history.unshift({
                 action,
                 taskTitle,
@@ -3138,7 +3196,7 @@ Ví dụ:
         }
 
         function purgeOldHistory() {
-            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            const history = window.taskHistory || [];
             if (history.length === 0) return;
 
             const now = new Date();
@@ -3152,7 +3210,7 @@ Ví dụ:
             });
 
             if (filtered.length !== history.length) {
-                localStorage.setItem('ori_kanban_task_history', JSON.stringify(filtered));
+                db.ref('kanban/task_history').set(filtered);
             }
         }
 
@@ -3213,7 +3271,7 @@ Ví dụ:
         }
 
         function renderAdminHistory(filter) {
-            const history = JSON.parse(localStorage.getItem('ori_kanban_task_history') || '[]');
+            const history = window.taskHistory || [];
             const filtered = filter === 'all' ? history : history.filter(h => h.action === filter);
 
             document.getElementById('adminHistoryCount').textContent = `${filtered.length} mục`;
